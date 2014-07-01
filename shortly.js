@@ -25,15 +25,21 @@ app.configure(function() {
   app.use(express.static(__dirname + '/public'));
 });
 
-app.get('/', checkUser, function(req, res) {
+app.get('/', util.checkUser, function(req, res) {
   res.render('index');
 });
 
-app.get('/create', checkUser, function(req, res) {
+app.get('/create', util.checkUser, function(req, res) {
   res.render('index');
 });
 
-app.get('/links', checkUser, function(req, res) {
+app.get('/logout', function(req, res){
+  console.log("I am being invoked")
+  req.session.logged = false;
+  res.redirect('/login');
+});
+
+app.get('/links', util.checkUser, function(req, res) {
   Links.reset().fetch().then(function(links) {
     res.send(200, links.models);
   });
@@ -76,7 +82,7 @@ app.get('/login', function(req, res) {
   res.render('login');
 });
 
-app.get('/signup', checkUser, function(req, res) {
+app.get('/signup', util.checkUser, function(req, res) {
   res.render('signup');
 });
 
@@ -103,13 +109,12 @@ app.post('/signup', function(req, res) {
 app.post('/login', function(req, res) {
   var username = req.body.username;
   var password = req.body.password;
-  new User({ username: username }).fetch().then(function(found) {
-    if(found) {
-      bcrypt.compare(password, found.get('password'), function(err, userMatch){
+  new User({ username: username }).fetch().then(function(user) {
+    if(user) {
+      bcrypt.compare(password, user.get('password'), function(err, userMatch){
         if (userMatch){
-          req.session.logged = true;
-          res.redirect('/');
-        }else{
+          util.createSession(req, res, user);
+        } else {
           res.redirect('/login');
         }
       });
@@ -124,15 +129,7 @@ app.post('/login', function(req, res) {
   /************************************************************/
 // Write your authentication routes here
 /************************************************************/
-function checkUser(req, res, next) {
-  // redirect to loginr
-  console.log(req.session.logged);
-  if (req.session.logged){
-    next();
-  }else{
-    res.redirect('/login');
-  }
-}
+
 
 
 
