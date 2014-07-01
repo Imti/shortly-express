@@ -27,19 +27,10 @@ app.get('/create', function(req, res) {
   res.render('index');
 });
 
-app.get('/login', function(req, res) {
-  res.render('login');
-});
-
-app.get('/signup', function(req, res) {
-  res.render('signup');
-});
-
-
 app.get('/links', function(req, res) {
   Links.reset().fetch().then(function(links) {
     res.send(200, links.models);
-  })
+  });
 });
 
 app.post('/links', function(req, res) {
@@ -75,15 +66,40 @@ app.post('/links', function(req, res) {
   });
 });
 
+app.get('/login', function(req, res) {
+  res.render('login');
+});
+
+app.get('/signup', function(req, res) {
+  res.render('signup');
+});
+
 // post request handler
+app.post('/signup', function(req, res) {
+  var username = req.body.username;
+  var password = req.body.password;
+  new User({ username: username }).fetch().then(function(found) {
+    if(found) {
+      res.redirect('/login');
+    } else {
+      var user = new User({
+        username: username,
+        password: password
+      });
+      user.save().then(function(newUser) {
+        Users.add(newUser);
+        res.redirect('/');
+      });
+    }
+  });
+
+});
     // capture username, password
     // check username against db
     // create a user model
     // save the user to db
     // add the user to collection
 
-//
-//
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
