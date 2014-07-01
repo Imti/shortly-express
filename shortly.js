@@ -9,6 +9,8 @@ var Links = require('./app/collections/links');
 var Link = require('./app/models/link');
 var Click = require('./app/models/click');
 
+var bcrypt = require('bcrypt-nodejs');
+
 var app = express();
 
 app.configure(function() {
@@ -92,15 +94,36 @@ app.post('/signup', function(req, res) {
       });
     }
   });
-
 });
-    // capture username, password
-    // check username against db
-    // create a user model
-    // save the user to db
-    // add the user to collection
 
-/************************************************************/
+app.post('/login', function(req, res) {
+  var username = req.body.username;
+  var password = req.body.password;
+  new User({ username: username }).fetch().then(function(found) {
+    if(found) {
+      bcrypt.compare(password, found.get('password'), function(err, userMatch){
+        if (userMatch){
+          res.redirect('/');
+        }else{
+          res.redirect('/login');
+        }
+      });
+    } else {
+      var user = new User({
+        username: username,
+        password: password
+      });
+      user.save().then(function(newUser) {
+        Users.add(newUser);
+        res.redirect('/');
+      });
+    }
+  });
+});
+
+
+
+  /************************************************************/
 // Write your authentication routes here
 /************************************************************/
 
@@ -123,12 +146,12 @@ app.get('/*', function(req, res) {
 
       click.save().then(function() {
         db.knex('urls')
-          .where('code', '=', link.get('code'))
-          .update({
-            visits: link.get('visits') + 1,
-          }).then(function() {
-            return res.redirect(link.get('url'));
-          });
+        .where('code', '=', link.get('code'))
+        .update({
+          visits: link.get('visits') + 1,
+        }).then(function() {
+          return res.redirect(link.get('url'));
+        });
       });
     }
   });
