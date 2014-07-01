@@ -27,6 +27,15 @@ app.get('/create', function(req, res) {
   res.render('index');
 });
 
+app.get('/login', function(req, res) {
+  res.render('login');
+});
+
+app.get('/signup', function(req, res) {
+  res.render('signup');
+});
+
+
 app.get('/links', function(req, res) {
   Links.reset().fetch().then(function(links) {
     res.send(200, links.models);
@@ -66,6 +75,15 @@ app.post('/links', function(req, res) {
   });
 });
 
+// post request handler
+    // capture username, password
+    // check username against db
+    // create a user model
+    // save the user to db
+    // add the user to collection
+
+//
+//
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
