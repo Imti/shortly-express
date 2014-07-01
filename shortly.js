@@ -9,9 +9,13 @@ var Links = require('./app/collections/links');
 var Link = require('./app/models/link');
 var Click = require('./app/models/click');
 
+// var session = require('express-session');
+
 var bcrypt = require('bcrypt-nodejs');
 
 var app = express();
+app.use( express.cookieParser() );
+app.use(express.session({secret: 'top super secret'}));
 
 app.configure(function() {
   app.set('views', __dirname + '/views');
@@ -25,11 +29,11 @@ app.get('/', checkUser, function(req, res) {
   res.render('index');
 });
 
-app.get('/create', function(req, res) {
+app.get('/create', checkUser, function(req, res) {
   res.render('index');
 });
 
-app.get('/links', function(req, res) {
+app.get('/links', checkUser, function(req, res) {
   Links.reset().fetch().then(function(links) {
     res.send(200, links.models);
   });
@@ -72,7 +76,7 @@ app.get('/login', function(req, res) {
   res.render('login');
 });
 
-app.get('/signup', function(req, res) {
+app.get('/signup', checkUser, function(req, res) {
   res.render('signup');
 });
 
@@ -101,10 +105,9 @@ app.post('/login', function(req, res) {
   var password = req.body.password;
   new User({ username: username }).fetch().then(function(found) {
     if(found) {
-      console.log("I'm found!");
       bcrypt.compare(password, found.get('password'), function(err, userMatch){
-        console.log('userMAtch'+userMatch);
         if (userMatch){
+          req.session.logged = true;
           res.redirect('/');
         }else{
           res.redirect('/login');
@@ -122,8 +125,13 @@ app.post('/login', function(req, res) {
 // Write your authentication routes here
 /************************************************************/
 function checkUser(req, res, next) {
-  // redirect to login
-  res.redirect('/login');
+  // redirect to loginr
+  console.log(req.session.logged);
+  if (req.session.logged){
+    next();
+  }else{
+    res.redirect('/login');
+  }
 }
 
 
