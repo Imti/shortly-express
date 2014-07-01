@@ -101,7 +101,9 @@ app.post('/login', function(req, res) {
   var password = req.body.password;
   new User({ username: username }).fetch().then(function(found) {
     if(found) {
+      console.log("I'm found!");
       bcrypt.compare(password, found.get('password'), function(err, userMatch){
+        console.log('userMAtch'+userMatch);
         if (userMatch){
           res.redirect('/');
         }else{
