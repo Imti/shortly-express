@@ -21,7 +21,7 @@ app.configure(function() {
   app.use(express.static(__dirname + '/public'));
 });
 
-app.get('/', function(req, res) {
+app.get('/', checkUser, function(req, res) {
   res.render('index');
 });
 
@@ -109,14 +109,7 @@ app.post('/login', function(req, res) {
         }
       });
     } else {
-      var user = new User({
-        username: username,
-        password: password
-      });
-      user.save().then(function(newUser) {
-        Users.add(newUser);
-        res.redirect('/');
-      });
+      res.redirect('/signup');
     }
   });
 });
@@ -126,6 +119,10 @@ app.post('/login', function(req, res) {
   /************************************************************/
 // Write your authentication routes here
 /************************************************************/
+function checkUser(req, res, next) {
+  // redirect to login
+  res.redirect('/login');
+}
 
 
 
