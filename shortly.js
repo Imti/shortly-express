@@ -38,7 +38,7 @@ app.get('/logout', function(req, res){
 });
 
 app.get('/links', util.checkUser, function(req, res) {
-  Links.reset().fetch().then(function(links) {
+  Links.reset().query({where: {user_id: req.session.user.id}}).fetch().then(function(links) {
     res.send(200, links.models);
   });
 });
@@ -64,7 +64,8 @@ app.post('/links', function(req, res) {
         var link = new Link({
           url: uri,
           title: title,
-          base_url: req.headers.origin
+          base_url: req.headers.origin,
+          user_id: req.session.user.id
         });
 
         link.save().then(function(newLink) {
