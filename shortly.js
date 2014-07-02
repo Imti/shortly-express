@@ -34,9 +34,7 @@ app.get('/create', util.checkUser, function(req, res) {
 });
 
 app.get('/logout', function(req, res){
-  console.log("I am being invoked")
-  req.session.logged = false;
-  res.redirect('/login');
+  util.deleteSession(req, res);
 });
 
 app.get('/links', util.checkUser, function(req, res) {
@@ -82,7 +80,7 @@ app.get('/login', function(req, res) {
   res.render('login');
 });
 
-app.get('/signup', util.checkUser, function(req, res) {
+app.get('/signup', function(req, res) {
   res.render('signup');
 });
 

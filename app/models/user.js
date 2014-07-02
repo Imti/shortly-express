@@ -1,6 +1,7 @@
 var db = require('../config');
 var bcrypt = require('bcrypt-nodejs');
 var Promise = require('bluebird');
+var Link = require('./link');
 
 var User = db.Model.extend({
   // table name users
@@ -11,6 +12,10 @@ var User = db.Model.extend({
      var hashPassword = bcrypt.hashSync(model.get('password'));
      model.set('password', hashPassword);
     });
+  },
+
+  urls: function() {
+    return this.hasMany(Link);
   }
 });
 
